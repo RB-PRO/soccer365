@@ -28,6 +28,7 @@ func save_res(results []result) {
 	if err := f.SaveAs("result.xlsx"); err != nil {
 		fmt.Println(err)
 	}
+	f.Close()
 }
 
 // Получить результаты всех матчей

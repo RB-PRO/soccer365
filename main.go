@@ -1,7 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"log"
+	"os"
+	"strconv"
+	"strings"
 )
 
 type lig struct {
@@ -46,20 +51,45 @@ func main() {
 		fmt.Printf("%v\t%v - %v", ind+1, val.name, country_ligs(val.img))
 		fmt.Println()
 	}
+	//save_ligs(ligs)
 
-	fmt.Print("Введите номер интересующей Вас лиги:\n> ")
-	var input_ligs int
-	fmt.Scan(&input_ligs)
+	fmt.Print("> ")
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	err := scanner.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+	text := scanner.Text()
+	text = strings.Replace(text, "  ", " ", -1)
 
-	fmt.Println("Вы выбрали ")
-	fmt.Printf("%v: %v - %v\n\n", input_ligs, ligs[input_ligs-1].name, country_ligs(ligs[input_ligs-1].img))
-	var link_thil_lig string = ligs[input_ligs-1].link
+	strs := strings.Split(text, " ")
+	for _, str := range strs {
+		str = strings.Replace(str, " ", "", -1)
+		str = strings.Replace(str, "\n", "", -1)
+		str = strings.Replace(str, "\t", "", -1)
+		input_ligs, _ := strconv.Atoi(str)
 
-	// Получить год
-	link_god := god_of_link()
+		if input_ligs != 0 {
 
-	// Составляем ссылку
-	link_thil_lig += link_god
+			fmt.Printf("\n%v - %v\n", input_ligs, ligs[input_ligs-1].name)
+			//fmt.Printf("%v: %v - %v\n\n", input_ligs, ligs[input_ligs-1].name, country_ligs(ligs[input_ligs-1].img))
+			link_thil_lig := ligs[input_ligs-1].link
+
+			// Получить год
+			link_god := god_of_link()
+
+			// Составляем ссылку
+			link_thil_lig += link_god
+
+			// Making
+			main2(link_thil_lig)
+		}
+	}
+
+}
+
+func main2(link_thil_lig string) {
 
 	// получить результаты всех матчей
 	results := result_of_lig_god(link_thil_lig)
@@ -71,9 +101,8 @@ func main() {
 	calcules := calcule_res_itog(results, itogs)
 
 	// Сохранение данных
-	save_res(results)
-	save_ligs(ligs)
-	save_itog(itogs)
-	save_calcule(calcules)
+	//save_res(results)
+	//save_itog(itogs)
+	//save_calcule(calcules)
 	save_calcule_other_file(calcules)
 }

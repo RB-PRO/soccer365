@@ -33,6 +33,7 @@ func save_calcule(calcules []calcule) {
 	if err := f.SaveAs("calcule.xlsx"); err != nil {
 		fmt.Println(err)
 	}
+	f.Close()
 }
 
 // Сохранить результаты в файл по ТЗ
@@ -57,11 +58,15 @@ func save_calcule_other_file(calcules []calcule) {
 func writeserDatasCalc(f *excelize.File, calcules []calcule) {
 	for _, val := range calcules {
 		tecal_ssheet := sheet_name(val.koef_left, val.koef_right)
-		f.NewSheet(tecal_ssheet)
-		writeData(f, tecal_ssheet, val)
+		//fmt.Println(">>>>>>>>>>>", tecal_ssheet, "---------", val.koef_left, val.koef_right)
+		if len(tecal_ssheet) == 5 {
+			f.NewSheet(tecal_ssheet)
+			writeData(f, tecal_ssheet, val)
+		}
 		//fmt.Println(ind, tecal_ssheet, val.koef_left, val.koef_right)
 	}
 	f.DeleteSheet("Sheet1")
+	f.Close()
 }
 
 // Составить название листа

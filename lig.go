@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"log"
+	"os"
 	"strconv"
 	"strings"
 
@@ -11,8 +14,17 @@ import (
 
 func god_of_link() string {
 	fmt.Print("Введите номер интересующей Вас год\n(Например: 22 для 2021/2022):\n> ")
-	var inp int
-	fmt.Scan(&inp)
+
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	err := scanner.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+	text := scanner.Text()
+
+	inp, _ := strconv.Atoi(text)
+
 	if inp == 23 {
 		return ""
 	} else if inp < 23 {
@@ -52,16 +64,16 @@ func list_of_ligs() []lig {
 		}
 		ligs = append(ligs, tecal_lig)
 	})
-	//c.Visit("https://soccer365.ru/index.php?c=competitions&a=champs_list_data&tp=0&cn_id=0&st=0&ttl=&p=1")
-
-	for i := 1; ; i++ {
-		c.Visit("https://soccer365.ru/index.php?c=competitions&a=champs_list_data&tp=0&cn_id=0&st=0&ttl=&p=" + strconv.Itoa(i))
-		if exits {
-			break
+	c.Visit("https://soccer365.ru/index.php?c=competitions&a=champs_list_data&tp=0&cn_id=0&st=0&ttl=&p=1")
+	/*
+		for i := 1; ; i++ {
+			c.Visit("https://soccer365.ru/index.php?c=competitions&a=champs_list_data&tp=0&cn_id=0&st=0&ttl=&p=" + strconv.Itoa(i))
+			if exits {
+				break
+			}
 		}
-	}
-
-	//fmt.Println(exits)
+	*/
+	fmt.Println(exits)
 	return ligs
 }
 
@@ -79,4 +91,5 @@ func save_ligs(ligs []lig) {
 	if err := f.SaveAs("ligs.xlsx"); err != nil {
 		fmt.Println(err)
 	}
+	f.Close()
 }

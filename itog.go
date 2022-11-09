@@ -38,6 +38,7 @@ func save_itog(itogs []itog) {
 	if err := f.SaveAs("itogs.xlsx"); err != nil {
 		fmt.Println(err)
 	}
+	f.Close()
 }
 
 // Получить результаты всех матчей
@@ -45,7 +46,7 @@ func itog_of_lig_god(url string) []itog {
 	var itogs []itog
 	var tecal_itog itog
 	c := colly.NewCollector()
-	c.OnHTML("div[id^=competition_table] tbody tr", func(e *colly.HTMLElement) {
+	c.OnHTML("table[class=stngs] tbody tr", func(e *colly.HTMLElement) {
 		tecal_itog.name = e.DOM.Find("td:nth-child(2) a").Text()
 		tecal_itog.count_games, _ = strconv.Atoi(e.DOM.Find("td:nth-child(3)").Text())
 		tecal_itog.count_win, _ = strconv.Atoi(e.DOM.Find("td:nth-child(4)").Text())
