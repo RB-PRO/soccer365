@@ -49,10 +49,7 @@ func main() {
 
 	fmt.Print("Введите номер интересующей Вас лиги:\n> ")
 	var input_ligs int
-	_, err := fmt.Scanf("%d", &input_ligs)
-	if err != nil {
-		panic(err)
-	}
+	fmt.Scan(&input_ligs)
 
 	fmt.Println("Вы выбрали ")
 	fmt.Printf("%v: %v - %v\n\n", input_ligs, ligs[input_ligs-1].name, country_ligs(ligs[input_ligs-1].img))

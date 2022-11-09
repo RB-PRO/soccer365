@@ -12,10 +12,7 @@ import (
 func god_of_link() string {
 	fmt.Print("Введите номер интересующей Вас год\n(Например: 22 для 2021/2022):\n> ")
 	var inp int
-	_, err := fmt.Scanf("%d", &inp)
-	if err != nil {
-		panic(err)
-	}
+	fmt.Scan(&inp)
 	if inp == 23 {
 		return ""
 	} else if inp < 23 {
@@ -55,16 +52,16 @@ func list_of_ligs() []lig {
 		}
 		ligs = append(ligs, tecal_lig)
 	})
-	c.Visit("https://soccer365.ru/index.php?c=competitions&a=champs_list_data&tp=0&cn_id=0&st=0&ttl=&p=1")
-	/*
-		for i := 1; ; i++ {
-			c.Visit("https://soccer365.ru/index.php?c=competitions&a=champs_list_data&tp=0&cn_id=0&st=0&ttl=&p=" + strconv.Itoa(i))
-			if exits {
-				break
-			}
+	//c.Visit("https://soccer365.ru/index.php?c=competitions&a=champs_list_data&tp=0&cn_id=0&st=0&ttl=&p=1")
+
+	for i := 1; ; i++ {
+		c.Visit("https://soccer365.ru/index.php?c=competitions&a=champs_list_data&tp=0&cn_id=0&st=0&ttl=&p=" + strconv.Itoa(i))
+		if exits {
+			break
 		}
-	*/
-	fmt.Println(exits)
+	}
+
+	//fmt.Println(exits)
 	return ligs
 }
 
