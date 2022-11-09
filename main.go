@@ -29,7 +29,16 @@ type itog struct {
 	obsh        int    // Последние данные
 }
 
+type calcule struct {
+	stats_left  itog
+	stats_right itog
+	game        result
+	koef_left   float64 // Левый к-т домашней команды
+	koef_right  float64 // Правый к-т приезжей команды
+}
+
 const site string = "https://soccer365.ru"
+const file_out string = "out.xlsx"
 
 func main() {
 	ligs := list_of_ligs()
@@ -46,16 +55,11 @@ func main() {
 	}
 
 	fmt.Println("Вы выбрали ")
-	fmt.Printf("%v: %v - %v\n", input_ligs, ligs[input_ligs-1].name, country_ligs(ligs[input_ligs-1].img))
+	fmt.Printf("%v: %v - %v\n\n", input_ligs, ligs[input_ligs-1].name, country_ligs(ligs[input_ligs-1].img))
 	var link_thil_lig string = ligs[input_ligs-1].link
 
-	fmt.Print("Введите номер интересующей Вас год\n(Например: 22 для 2021/2022):\n> ")
-	var input_god int
-	_, err = fmt.Scanf("%d", &input_god)
-	if err != nil {
-		panic(err)
-	}
-	link_god := god_of_link(input_god)
+	// Получить год
+	link_god := god_of_link()
 
 	// Составляем ссылку
 	link_thil_lig += link_god
@@ -66,8 +70,13 @@ func main() {
 	// получить данные с итога
 	itogs := itog_of_lig_god(link_thil_lig)
 
+	// Расчёт по ТЗ
+	calcules := calcule_res_itog(results, itogs)
+
 	// Сохранение данных
 	save_res(results)
 	save_ligs(ligs)
 	save_itog(itogs)
+	save_calcule(calcules)
+	save_calcule_other_file(calcules)
 }

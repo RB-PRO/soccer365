@@ -1,0 +1,123 @@
+package main
+
+import (
+	"fmt"
+	"math"
+	"os"
+	"strconv"
+
+	"github.com/xuri/excelize/v2"
+)
+
+// Сохранить результаты
+func save_calcule(calcules []calcule) {
+	var tecal_ssheet string = "main"
+	var offset int = 1
+	f := excelize.NewFile()
+	f.NewSheet(tecal_ssheet)
+	f.DeleteSheet("Sheet1")
+	f.SetCellValue(tecal_ssheet, "A1", "К-т 1")
+	f.SetCellValue(tecal_ssheet, "B1", "Команда 1")
+	f.SetCellValue(tecal_ssheet, "C1", "Голы 1")
+	f.SetCellValue(tecal_ssheet, "D1", "Голы 2")
+	f.SetCellValue(tecal_ssheet, "E1", "Команда 2")
+	f.SetCellValue(tecal_ssheet, "F1", "К-т 1")
+	for ind, val := range calcules {
+		f.SetCellValue(tecal_ssheet, "A"+strconv.Itoa(ind+1+offset), val.koef_left)
+		f.SetCellValue(tecal_ssheet, "B"+strconv.Itoa(ind+1+offset), val.game.left.name)
+		f.SetCellValue(tecal_ssheet, "C"+strconv.Itoa(ind+1+offset), val.game.left.gols)
+		f.SetCellValue(tecal_ssheet, "D"+strconv.Itoa(ind+1+offset), val.game.right.gols)
+		f.SetCellValue(tecal_ssheet, "E"+strconv.Itoa(ind+1+offset), val.game.right.name)
+		f.SetCellValue(tecal_ssheet, "F"+strconv.Itoa(ind+1+offset), val.koef_right)
+	}
+	if err := f.SaveAs("calcule.xlsx"); err != nil {
+		fmt.Println(err)
+	}
+}
+
+// Сохранить результаты в файл по ТЗ
+func save_calcule_other_file(calcules []calcule) {
+	if _, err := os.Stat(file_out); err == nil { // Файл существует
+		f, err := excelize.OpenFile(file_out, excelize.Options{})
+		if err != nil {
+			panic(err)
+		}
+		writeserDatasCalc(f, calcules)
+		f.Save()
+	} else { // Файл не существует
+		f := excelize.NewFile()
+		writeserDatasCalc(f, calcules)
+		if err := f.SaveAs(file_out); err != nil {
+			fmt.Println(err)
+		}
+	}
+}
+
+// Внести всё
+func writeserDatasCalc(f *excelize.File, calcules []calcule) {
+	for _, val := range calcules {
+		tecal_ssheet := sheet_name(val.koef_left, val.koef_right)
+		f.NewSheet(tecal_ssheet)
+		writeData(f, tecal_ssheet, val)
+		//fmt.Println(ind, tecal_ssheet, val.koef_left, val.koef_right)
+	}
+	f.DeleteSheet("Sheet1")
+}
+
+// Составить название листа
+func sheet_name(val1, val2 float64) string {
+	k1 := int(math.Round(val1 * 10.0))
+	k2 := int(math.Round(val2 * 10.0))
+	tecal_ssheet := zero_string(k1) + "-" + zero_string(k2)
+	return tecal_ssheet
+}
+
+// Преобразовать в строку с нулём
+func zero_string(input int) string {
+	if input < 10 {
+		return "0" + strconv.Itoa(input)
+	} else {
+		return strconv.Itoa(input)
+	}
+}
+
+// Ввести одну строку
+func writeData(f *excelize.File, sSheet string, calc calcule) {
+	r, err := f.GetRows(sSheet)
+	if err != nil {
+		panic(err)
+	}
+	lens := len(r)
+	lens++
+	f.SetCellValue(sSheet, "A"+strconv.Itoa(int(lens)), calc.game.left.gols-calc.game.right.gols)
+	f.SetCellValue(sSheet, "B"+strconv.Itoa(int(lens)), calc.game.left.gols+calc.game.right.gols)
+	f.SetCellValue(sSheet, "C"+strconv.Itoa(int(lens)), calc.game.left.name)
+	f.SetCellValue(sSheet, "D"+strconv.Itoa(int(lens)), calc.game.right.name)
+}
+
+// Рассчёт всех данных calcule
+func calcule_res_itog(results []result, itogs []itog) []calcule {
+	var calcules []calcule
+	var calcules_tecal calcule
+	m := make(map[string]itog)
+	for _, itog_val := range itogs {
+		m[itog_val.name] = itog_val
+	}
+	for _, res_val := range results {
+		calcules_tecal = calcule_single(res_val, m[res_val.left.name], m[res_val.right.name])
+		calcules = append(calcules, calcules_tecal)
+	}
+	return calcules
+}
+
+// Одиночный расчёт
+func calcule_single(res result, itog_left itog, itog_right itog) calcule {
+	var calc calcule
+	calc.stats_left = itog_left
+	calc.stats_right = itog_right
+	calc.game = res
+
+	calc.koef_left = float64(calc.stats_left.count_in+calc.stats_right.count_out) / float64(calc.stats_left.count_games+calc.stats_right.count_games)
+	calc.koef_right = float64(calc.stats_right.count_in+calc.stats_left.count_out) / float64(calc.stats_right.count_games+calc.stats_left.count_games)
+	return calc
+}

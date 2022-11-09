@@ -9,7 +9,13 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-func god_of_link(inp int) string {
+func god_of_link() string {
+	fmt.Print("Введите номер интересующей Вас год\n(Например: 22 для 2021/2022):\n> ")
+	var inp int
+	_, err := fmt.Scanf("%d", &inp)
+	if err != nil {
+		panic(err)
+	}
 	if inp == 23 {
 		return ""
 	} else if inp < 23 {
