@@ -78,15 +78,15 @@ func list_of_ligs() []lig {
 }
 
 // Сохранить лиги в файл
-func save_ligs(ligs []lig) {
+func save_ligs(ligs []lig, ssheet string) {
 	f := excelize.NewFile()
-	f.NewSheet("main")
+	f.NewSheet(ssheet)
 	f.DeleteSheet("Sheet1")
 	for ind, val := range ligs {
-		f.SetCellValue("main", "A"+strconv.Itoa(ind+1), val.name)
-		f.SetCellValue("main", "B"+strconv.Itoa(ind+1), val.link)
-		f.SetCellValue("main", "C"+strconv.Itoa(ind+1), val.img)
-		f.SetCellValue("main", "D"+strconv.Itoa(ind+1), country_ligs(val.img))
+		f.SetCellValue(ssheet, "A"+strconv.Itoa(ind+1), val.name)
+		f.SetCellValue(ssheet, "B"+strconv.Itoa(ind+1), val.link)
+		f.SetCellValue(ssheet, "C"+strconv.Itoa(ind+1), val.img)
+		f.SetCellValue(ssheet, "D"+strconv.Itoa(ind+1), country_ligs(val.img))
 	}
 	if err := f.SaveAs("ligs.xlsx"); err != nil {
 		fmt.Println(err)

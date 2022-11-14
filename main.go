@@ -7,6 +7,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/xuri/excelize/v2"
 )
 
 type lig struct {
@@ -43,9 +45,27 @@ type calcule struct {
 }
 
 const site string = "https://soccer365.ru"
-const file_out string = "out.xlsx"
+const file_itog string = "itog"
+const file_lig string = "lig"
+const file_result string = "result"
+const file_out string = "out"
 
 func main() {
+
+	//  Создаём или открываем файлы
+	f_itog, _ := openOrCreateXLSX(file_itog)
+	defer saveCloseExit(f_itog)
+	f_lig, _ := openOrCreateXLSX(file_lig)
+	defer saveCloseExit(f_lig)
+	f_result, _ := openOrCreateXLSX(file_result)
+	defer saveCloseExit(f_result)
+	f_out, _ := openOrCreateXLSX(file_out)
+	defer saveCloseExit(f_out)
+
+	startParse(f_itog, f_lig, f_result, f_out)
+}
+
+func startParse(f_itog, f_lig, f_result, f_out *excelize.File) {
 	ligs := list_of_ligs()
 	for ind, val := range ligs {
 		fmt.Printf("%v\t%v - %v", ind+1, val.name, country_ligs(val.img))
@@ -83,13 +103,12 @@ func main() {
 			link_thil_lig += link_god
 
 			// Making
-			main2(link_thil_lig)
+			parseLig(link_thil_lig, ligs[input_ligs-1].name+"-"+country_ligs(ligs[input_ligs-1].img), f_itog, f_lig, f_result, f_out)
 		}
 	}
-
 }
 
-func main2(link_thil_lig string) {
+func parseLig(link_thil_lig, ssheet string, f_itog, f_lig, f_result, f_out *excelize.File) {
 
 	// получить результаты всех матчей
 	results := result_of_lig_god(link_thil_lig)
@@ -101,8 +120,43 @@ func main2(link_thil_lig string) {
 	calcules := calcule_res_itog(results, itogs)
 
 	// Сохранение данных
-	//save_res(results)
-	//save_itog(itogs)
-	//save_calcule(calcules)
+	save_res(results, ssheet)
+	save_itog(itogs, ssheet)
+	save_calcule(calcules, ssheet)
 	save_calcule_other_file(calcules)
+}
+
+// System function
+
+func saveCloseExit(f *excelize.File) {
+	f.Save()
+	f.Close()
+}
+func openOrCreateXLSX(filename string) (*excelize.File, error) {
+	var f *excelize.File
+	var err_create_open error
+	if _, err_create_open = os.Stat(filename + ".xlsx"); err_create_open == nil {
+		// Файл существует
+		if err_create_open != nil {
+			return nil, err_create_open
+		}
+		f, err_create_open = createXLSX(filename + ".xlsx")
+		if err_create_open != nil {
+			return nil, err_create_open
+		}
+	} else {
+		// файл не существует
+		f = excelize.NewFile()
+		f.NewSheet("DeleteMe")
+		f.DeleteSheet("Sheet1")
+		if err_save := f.SaveAs(filename + ".xlsx"); err_save != nil {
+			return nil, err_create_open
+		}
+	}
+	return f, nil
+}
+
+// Создать xlsx
+func createXLSX(filename string) (*excelize.File, error) {
+	return excelize.OpenFile(filename + ".xlsx")
 }

@@ -9,21 +9,21 @@ import (
 )
 
 // Сохранить результаты
-func save_res(results []result) {
-	var tecal_ssheet string = "main"
+func save_res(results []result, ssheet string) {
+	//var ssheet string = "main"
 	var offset int = 1
 	f := excelize.NewFile()
-	f.NewSheet(tecal_ssheet)
+	f.NewSheet(ssheet)
 	f.DeleteSheet("Sheet1")
-	f.SetCellValue(tecal_ssheet, "A1", "Команда 1")
-	f.SetCellValue(tecal_ssheet, "B1", "Голы 1")
-	f.SetCellValue(tecal_ssheet, "C1", "Голы 2")
-	f.SetCellValue(tecal_ssheet, "D1", "Команда 2")
+	f.SetCellValue(ssheet, "A1", "Команда 1")
+	f.SetCellValue(ssheet, "B1", "Голы 1")
+	f.SetCellValue(ssheet, "C1", "Голы 2")
+	f.SetCellValue(ssheet, "D1", "Команда 2")
 	for ind, val := range results {
-		f.SetCellValue(tecal_ssheet, "A"+strconv.Itoa(ind+1+offset), val.left.name)
-		f.SetCellValue(tecal_ssheet, "B"+strconv.Itoa(ind+1+offset), val.left.gols)
-		f.SetCellValue(tecal_ssheet, "C"+strconv.Itoa(ind+1+offset), val.right.gols)
-		f.SetCellValue(tecal_ssheet, "D"+strconv.Itoa(ind+1+offset), val.right.name)
+		f.SetCellValue(ssheet, "A"+strconv.Itoa(ind+1+offset), val.left.name)
+		f.SetCellValue(ssheet, "B"+strconv.Itoa(ind+1+offset), val.left.gols)
+		f.SetCellValue(ssheet, "C"+strconv.Itoa(ind+1+offset), val.right.gols)
+		f.SetCellValue(ssheet, "D"+strconv.Itoa(ind+1+offset), val.right.name)
 	}
 	if err := f.SaveAs("result.xlsx"); err != nil {
 		fmt.Println(err)

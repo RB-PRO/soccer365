@@ -10,25 +10,24 @@ import (
 )
 
 // Сохранить результаты
-func save_calcule(calcules []calcule) {
-	var tecal_ssheet string = "main"
+func save_calcule(calcules []calcule, ssheet string) {
 	var offset int = 1
 	f := excelize.NewFile()
-	f.NewSheet(tecal_ssheet)
+	f.NewSheet(ssheet)
 	f.DeleteSheet("Sheet1")
-	f.SetCellValue(tecal_ssheet, "A1", "К-т 1")
-	f.SetCellValue(tecal_ssheet, "B1", "Команда 1")
-	f.SetCellValue(tecal_ssheet, "C1", "Голы 1")
-	f.SetCellValue(tecal_ssheet, "D1", "Голы 2")
-	f.SetCellValue(tecal_ssheet, "E1", "Команда 2")
-	f.SetCellValue(tecal_ssheet, "F1", "К-т 1")
+	f.SetCellValue(ssheet, "A1", "К-т 1")
+	f.SetCellValue(ssheet, "B1", "Команда 1")
+	f.SetCellValue(ssheet, "C1", "Голы 1")
+	f.SetCellValue(ssheet, "D1", "Голы 2")
+	f.SetCellValue(ssheet, "E1", "Команда 2")
+	f.SetCellValue(ssheet, "F1", "К-т 1")
 	for ind, val := range calcules {
-		f.SetCellValue(tecal_ssheet, "A"+strconv.Itoa(ind+1+offset), val.koef_left)
-		f.SetCellValue(tecal_ssheet, "B"+strconv.Itoa(ind+1+offset), val.game.left.name)
-		f.SetCellValue(tecal_ssheet, "C"+strconv.Itoa(ind+1+offset), val.game.left.gols)
-		f.SetCellValue(tecal_ssheet, "D"+strconv.Itoa(ind+1+offset), val.game.right.gols)
-		f.SetCellValue(tecal_ssheet, "E"+strconv.Itoa(ind+1+offset), val.game.right.name)
-		f.SetCellValue(tecal_ssheet, "F"+strconv.Itoa(ind+1+offset), val.koef_right)
+		f.SetCellValue(ssheet, "A"+strconv.Itoa(ind+1+offset), val.koef_left)
+		f.SetCellValue(ssheet, "B"+strconv.Itoa(ind+1+offset), val.game.left.name)
+		f.SetCellValue(ssheet, "C"+strconv.Itoa(ind+1+offset), val.game.left.gols)
+		f.SetCellValue(ssheet, "D"+strconv.Itoa(ind+1+offset), val.game.right.gols)
+		f.SetCellValue(ssheet, "E"+strconv.Itoa(ind+1+offset), val.game.right.name)
+		f.SetCellValue(ssheet, "F"+strconv.Itoa(ind+1+offset), val.koef_right)
 	}
 	if err := f.SaveAs("calcule.xlsx"); err != nil {
 		fmt.Println(err)
