@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+	"strings"
 )
 
 type lig struct {
@@ -48,6 +51,12 @@ func main() {
 	}
 
 	fmt.Print("Введите номер интересующей Вас лиги:\n> ")
+	data_ligs, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		panic(err)
+	}
+	data_ligs_arr := strings.Split(string(data_ligs), " ")
+
 	var input_ligs int
 	_, err := fmt.Scanf("%d", &input_ligs)
 	if err != nil {
@@ -74,7 +83,7 @@ func main() {
 	calcules := calcule_res_itog(results, itogs)
 
 	// Сохранение данных
-	save_res(results)
+	save_res(results, ligs[input_ligs-1].name+" - "+country_ligs(ligs[input_ligs-1].img))
 	save_ligs(ligs)
 	save_itog(itogs)
 	save_calcule(calcules)

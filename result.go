@@ -9,8 +9,7 @@ import (
 )
 
 // Сохранить результаты
-func save_res(results []result) {
-	var tecal_ssheet string = "main"
+func save_res(results []result, tecal_ssheet string) {
 	var offset int = 1
 	f := excelize.NewFile()
 	f.NewSheet(tecal_ssheet)
