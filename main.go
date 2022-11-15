@@ -49,9 +49,9 @@ const file_itog string = "itog"
 const file_lig string = "lig"
 const file_result string = "result"
 const file_out string = "out"
+const file_calc string = "calcule"
 
 func main() {
-
 	//  Создаём или открываем файлы
 	f_itog, _ := openOrCreateXLSX(file_itog)
 	defer saveCloseExit(f_itog)
@@ -63,6 +63,7 @@ func main() {
 	defer saveCloseExit(f_out)
 
 	startParse(f_itog, f_lig, f_result, f_out)
+
 }
 
 func startParse(f_itog, f_lig, f_result, f_out *excelize.File) {
@@ -83,6 +84,9 @@ func startParse(f_itog, f_lig, f_result, f_out *excelize.File) {
 	text := scanner.Text()
 	text = strings.Replace(text, "  ", " ", -1)
 
+	// Получить год
+	link_god := god_of_link()
+
 	strs := strings.Split(text, " ")
 	for _, str := range strs {
 		str = strings.Replace(str, " ", "", -1)
@@ -95,9 +99,6 @@ func startParse(f_itog, f_lig, f_result, f_out *excelize.File) {
 			fmt.Printf("\n%v - %v\n", input_ligs, ligs[input_ligs-1].name)
 			//fmt.Printf("%v: %v - %v\n\n", input_ligs, ligs[input_ligs-1].name, country_ligs(ligs[input_ligs-1].img))
 			link_thil_lig := ligs[input_ligs-1].link
-
-			// Получить год
-			link_god := god_of_link()
 
 			// Составляем ссылку
 			link_thil_lig += link_god
@@ -120,17 +121,24 @@ func parseLig(link_thil_lig, ssheet string, f_itog, f_lig, f_result, f_out *exce
 	calcules := calcule_res_itog(results, itogs)
 
 	// Сохранение данных
-	save_res(results, ssheet)
-	save_itog(itogs, ssheet)
+	save_res(f_result, results, ssheet)
+	save_itog(f_itog, itogs, ssheet)
 	save_calcule(calcules, ssheet)
-	save_calcule_other_file(calcules)
+	save_calcule_other_file(f_out, calcules)
 }
 
 // System function
 
 func saveCloseExit(f *excelize.File) {
-	f.Save()
-	f.Close()
+	//f.DeleteSheet("DeleteMe")
+	// Close the spreadsheet.
+	if err := f.Save(); err != nil {
+		fmt.Println(err)
+	}
+	// Close the spreadsheet.
+	if err := f.Close(); err != nil {
+		fmt.Println(err)
+	}
 }
 func openOrCreateXLSX(filename string) (*excelize.File, error) {
 	var f *excelize.File

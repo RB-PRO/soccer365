@@ -88,7 +88,7 @@ func save_ligs(ligs []lig, ssheet string) {
 		f.SetCellValue(ssheet, "C"+strconv.Itoa(ind+1), val.img)
 		f.SetCellValue(ssheet, "D"+strconv.Itoa(ind+1), country_ligs(val.img))
 	}
-	if err := f.SaveAs("ligs.xlsx"); err != nil {
+	if err := f.SaveAs(file_lig); err != nil {
 		fmt.Println(err)
 	}
 	f.Close()

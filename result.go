@@ -9,12 +9,9 @@ import (
 )
 
 // Сохранить результаты
-func save_res(results []result, ssheet string) {
-	//var ssheet string = "main"
+func save_res(f *excelize.File, results []result, ssheet string) {
 	var offset int = 1
-	f := excelize.NewFile()
 	f.NewSheet(ssheet)
-	f.DeleteSheet("Sheet1")
 	f.SetCellValue(ssheet, "A1", "Команда 1")
 	f.SetCellValue(ssheet, "B1", "Голы 1")
 	f.SetCellValue(ssheet, "C1", "Голы 2")
@@ -25,7 +22,7 @@ func save_res(results []result, ssheet string) {
 		f.SetCellValue(ssheet, "C"+strconv.Itoa(ind+1+offset), val.right.gols)
 		f.SetCellValue(ssheet, "D"+strconv.Itoa(ind+1+offset), val.right.name)
 	}
-	if err := f.SaveAs("result.xlsx"); err != nil {
+	if err := f.SaveAs(file_result); err != nil {
 		fmt.Println(err)
 	}
 	f.Close()

@@ -29,23 +29,18 @@ func save_calcule(calcules []calcule, ssheet string) {
 		f.SetCellValue(ssheet, "E"+strconv.Itoa(ind+1+offset), val.game.right.name)
 		f.SetCellValue(ssheet, "F"+strconv.Itoa(ind+1+offset), val.koef_right)
 	}
-	if err := f.SaveAs("calcule.xlsx"); err != nil {
+	if err := f.SaveAs(file_calc + ".xlsx"); err != nil {
 		fmt.Println(err)
 	}
 	f.Close()
 }
 
 // Сохранить результаты в файл по ТЗ
-func save_calcule_other_file(calcules []calcule) {
+func save_calcule_other_file(f *excelize.File, calcules []calcule) {
 	if _, err := os.Stat(file_out); err == nil { // Файл существует
-		f, err := excelize.OpenFile(file_out, excelize.Options{})
-		if err != nil {
-			panic(err)
-		}
 		writeserDatasCalc(f, calcules)
 		f.Save()
 	} else { // Файл не существует
-		f := excelize.NewFile()
 		writeserDatasCalc(f, calcules)
 		if err := f.SaveAs(file_out); err != nil {
 			fmt.Println(err)

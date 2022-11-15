@@ -9,11 +9,8 @@ import (
 )
 
 // Сохранить результаты
-func save_itog(itogs []itog, ssheet string) {
+func save_itog(f *excelize.File, itogs []itog, ssheet string) {
 	var offset int = 1
-	f := excelize.NewFile()
-	f.NewSheet(ssheet)
-	f.DeleteSheet("Sheet1")
 	f.SetCellValue(ssheet, "A1", "Команда")
 	f.SetCellValue(ssheet, "B1", "Всего игр")
 	f.SetCellValue(ssheet, "C1", "Выйграно игр")
@@ -34,7 +31,7 @@ func save_itog(itogs []itog, ssheet string) {
 		f.SetCellValue(ssheet, "H"+strconv.Itoa(ind+1+offset), val.koef)        // +/-
 		f.SetCellValue(ssheet, "I"+strconv.Itoa(ind+1+offset), val.obsh)        // Последние данные
 	}
-	if err := f.SaveAs("itogs.xlsx"); err != nil {
+	if err := f.SaveAs(file_itog); err != nil {
 		fmt.Println(err)
 	}
 	f.Close()
