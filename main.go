@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 
@@ -72,9 +74,10 @@ func startParse(f_itog, f_lig, f_result, f_out *excelize.File) {
 	}
 	//save_ligs(ligs)
 
-	fmt.Print("Введите номер интересующей Вас лиги:\n> ")
-	var input_ligs int
-	_, err := fmt.Scanf("%d", &input_ligs)
+	fmt.Print("> ")
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	err := scanner.Err()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -118,9 +121,50 @@ func parseLig(link_thil_lig, ssheet string, f_itog, f_lig, f_result, f_out *exce
 	calcules := calcule_res_itog(results, itogs)
 
 	// Сохранение данных
-	save_res(results)
-	save_ligs(ligs)
-	save_itog(itogs)
-	save_calcule(calcules)
-	save_calcule_other_file(calcules)
+	save_res(f_result, results, ssheet)
+	save_itog(f_itog, itogs, ssheet)
+	save_calcule(calcules, ssheet)
+	save_calcule_other_file(f_out, calcules)
+}
+
+// System function
+
+func saveCloseExit(f *excelize.File) {
+	//f.DeleteSheet("DeleteMe")
+	// Close the spreadsheet.
+	if err := f.Save(); err != nil {
+		fmt.Println(err)
+	}
+	// Close the spreadsheet.
+	if err := f.Close(); err != nil {
+		fmt.Println(err)
+	}
+}
+func openOrCreateXLSX(filename string) (*excelize.File, error) {
+	var f *excelize.File
+	var err_create_open error
+	if _, err_create_open = os.Stat(filename + ".xlsx"); err_create_open == nil {
+		// Файл существует
+		if err_create_open != nil {
+			return nil, err_create_open
+		}
+		f, err_create_open = createXLSX(filename + ".xlsx")
+		if err_create_open != nil {
+			return nil, err_create_open
+		}
+	} else {
+		// файл не существует
+		f = excelize.NewFile()
+		f.NewSheet("DeleteMe")
+		f.DeleteSheet("Sheet1")
+		if err_save := f.SaveAs(filename + ".xlsx"); err_save != nil {
+			return nil, err_create_open
+		}
+	}
+	return f, nil
+}
+
+// Создать xlsx
+func createXLSX(filename string) (*excelize.File, error) {
+	return excelize.OpenFile(filename + ".xlsx")
 }

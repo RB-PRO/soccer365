@@ -5,11 +5,11 @@ import (
 	"strconv"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/xuri/excelize/v2"
 )
 
 // Сохранить результаты
-func save_res(results []result) {
-	var tecal_ssheet string = "main"
+func save_res(f *excelize.File, results []result, ssheet string) {
 	var offset int = 1
 	f.NewSheet(ssheet)
 	f.SetCellValue(ssheet, "A1", "Команда 1")
