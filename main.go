@@ -62,8 +62,11 @@ func main() {
 	}
 	text := scanner.Text()
 	text = strings.Replace(text, "  ", " ", -1)
-
 	strs := strings.Split(text, " ")
+
+	// Получить год
+	link_god := god_of_link()
+
 	for _, str := range strs {
 		str = strings.Replace(str, " ", "", -1)
 		str = strings.Replace(str, "\n", "", -1)
@@ -75,9 +78,6 @@ func main() {
 			fmt.Printf("\n%v - %v\n", input_ligs, ligs[input_ligs-1].name)
 			//fmt.Printf("%v: %v - %v\n\n", input_ligs, ligs[input_ligs-1].name, country_ligs(ligs[input_ligs-1].img))
 			link_thil_lig := ligs[input_ligs-1].link
-
-			// Получить год
-			link_god := god_of_link()
 
 			// Составляем ссылку
 			link_thil_lig += link_god
