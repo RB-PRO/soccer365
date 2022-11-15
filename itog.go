@@ -9,35 +9,32 @@ import (
 )
 
 // Сохранить результаты
-func save_itog(itogs []itog) {
-	var tecal_ssheet string = "main"
+func save_itog(f *excelize.File, itogs []itog, ssheet string) {
 	var offset int = 1
-	f := excelize.NewFile()
-	f.NewSheet(tecal_ssheet)
-	f.DeleteSheet("Sheet1")
-	f.SetCellValue(tecal_ssheet, "A1", "Команда")
-	f.SetCellValue(tecal_ssheet, "B1", "Всего игр")
-	f.SetCellValue(tecal_ssheet, "C1", "Выйграно игр")
-	f.SetCellValue(tecal_ssheet, "D1", "Ничья")
-	f.SetCellValue(tecal_ssheet, "E1", "Пройгрышей")
-	f.SetCellValue(tecal_ssheet, "F1", "Забил")
-	f.SetCellValue(tecal_ssheet, "G1", "Пропустил")
-	f.SetCellValue(tecal_ssheet, "H1", "+/-")
-	f.SetCellValue(tecal_ssheet, "I1", "Последние данные")
+	f.SetCellValue(ssheet, "A1", "Команда")
+	f.SetCellValue(ssheet, "B1", "Всего игр")
+	f.SetCellValue(ssheet, "C1", "Выйграно игр")
+	f.SetCellValue(ssheet, "D1", "Ничья")
+	f.SetCellValue(ssheet, "E1", "Пройгрышей")
+	f.SetCellValue(ssheet, "F1", "Забил")
+	f.SetCellValue(ssheet, "G1", "Пропустил")
+	f.SetCellValue(ssheet, "H1", "+/-")
+	f.SetCellValue(ssheet, "I1", "Последние данные")
 	for ind, val := range itogs {
-		f.SetCellValue(tecal_ssheet, "A"+strconv.Itoa(ind+1+offset), val.name)        // Название команды
-		f.SetCellValue(tecal_ssheet, "B"+strconv.Itoa(ind+1+offset), val.count_games) // Всего игр
-		f.SetCellValue(tecal_ssheet, "C"+strconv.Itoa(ind+1+offset), val.count_win)   // Выйграно игр
-		f.SetCellValue(tecal_ssheet, "D"+strconv.Itoa(ind+1+offset), val.count_draw)  // Ничья
-		f.SetCellValue(tecal_ssheet, "E"+strconv.Itoa(ind+1+offset), val.count_lost)  // Пройгрышей
-		f.SetCellValue(tecal_ssheet, "F"+strconv.Itoa(ind+1+offset), val.count_in)    // Забил
-		f.SetCellValue(tecal_ssheet, "G"+strconv.Itoa(ind+1+offset), val.count_out)   // Пропустил
-		f.SetCellValue(tecal_ssheet, "H"+strconv.Itoa(ind+1+offset), val.koef)        // +/-
-		f.SetCellValue(tecal_ssheet, "I"+strconv.Itoa(ind+1+offset), val.obsh)        // Последние данные
+		f.SetCellValue(ssheet, "A"+strconv.Itoa(ind+1+offset), val.name)        // Название команды
+		f.SetCellValue(ssheet, "B"+strconv.Itoa(ind+1+offset), val.count_games) // Всего игр
+		f.SetCellValue(ssheet, "C"+strconv.Itoa(ind+1+offset), val.count_win)   // Выйграно игр
+		f.SetCellValue(ssheet, "D"+strconv.Itoa(ind+1+offset), val.count_draw)  // Ничья
+		f.SetCellValue(ssheet, "E"+strconv.Itoa(ind+1+offset), val.count_lost)  // Пройгрышей
+		f.SetCellValue(ssheet, "F"+strconv.Itoa(ind+1+offset), val.count_in)    // Забил
+		f.SetCellValue(ssheet, "G"+strconv.Itoa(ind+1+offset), val.count_out)   // Пропустил
+		f.SetCellValue(ssheet, "H"+strconv.Itoa(ind+1+offset), val.koef)        // +/-
+		f.SetCellValue(ssheet, "I"+strconv.Itoa(ind+1+offset), val.obsh)        // Последние данные
 	}
-	if err := f.SaveAs("itogs.xlsx"); err != nil {
+	if err := f.SaveAs(file_itog); err != nil {
 		fmt.Println(err)
 	}
+	f.Close()
 }
 
 // Получить результаты всех матчей
@@ -45,7 +42,7 @@ func itog_of_lig_god(url string) []itog {
 	var itogs []itog
 	var tecal_itog itog
 	c := colly.NewCollector()
-	c.OnHTML("div[id^=competition_table] tbody tr", func(e *colly.HTMLElement) {
+	c.OnHTML("table[class=stngs] tbody tr", func(e *colly.HTMLElement) {
 		tecal_itog.name = e.DOM.Find("td:nth-child(2) a").Text()
 		tecal_itog.count_games, _ = strconv.Atoi(e.DOM.Find("td:nth-child(3)").Text())
 		tecal_itog.count_win, _ = strconv.Atoi(e.DOM.Find("td:nth-child(4)").Text())

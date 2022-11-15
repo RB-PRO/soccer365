@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
+	"log"
+	"strconv"
 	"strings"
+
+	"github.com/xuri/excelize/v2"
 )
 
 type lig struct {
@@ -41,37 +43,70 @@ type calcule struct {
 }
 
 const site string = "https://soccer365.ru"
-const file_out string = "out.xlsx"
+const file_itog string = "itog"
+const file_lig string = "lig"
+const file_result string = "result"
+const file_out string = "out"
+const file_calc string = "calcule"
 
 func main() {
+	//  Создаём или открываем файлы
+	f_itog, _ := openOrCreateXLSX(file_itog)
+	defer saveCloseExit(f_itog)
+	f_lig, _ := openOrCreateXLSX(file_lig)
+	defer saveCloseExit(f_lig)
+	f_result, _ := openOrCreateXLSX(file_result)
+	defer saveCloseExit(f_result)
+	f_out, _ := openOrCreateXLSX(file_out)
+	defer saveCloseExit(f_out)
+
+	startParse(f_itog, f_lig, f_result, f_out)
+
+}
+
+func startParse(f_itog, f_lig, f_result, f_out *excelize.File) {
 	ligs := list_of_ligs()
 	for ind, val := range ligs {
 		fmt.Printf("%v\t%v - %v", ind+1, val.name, country_ligs(val.img))
 		fmt.Println()
 	}
+	//save_ligs(ligs)
 
 	fmt.Print("Введите номер интересующей Вас лиги:\n> ")
-	data_ligs, err := ioutil.ReadAll(os.Stdin)
-	if err != nil {
-		panic(err)
-	}
-	data_ligs_arr := strings.Split(string(data_ligs), " ")
-
 	var input_ligs int
 	_, err := fmt.Scanf("%d", &input_ligs)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
-
-	fmt.Println("Вы выбрали ")
-	fmt.Printf("%v: %v - %v\n\n", input_ligs, ligs[input_ligs-1].name, country_ligs(ligs[input_ligs-1].img))
-	var link_thil_lig string = ligs[input_ligs-1].link
+	text := scanner.Text()
+	text = strings.Replace(text, "  ", " ", -1)
 
 	// Получить год
 	link_god := god_of_link()
 
-	// Составляем ссылку
-	link_thil_lig += link_god
+	strs := strings.Split(text, " ")
+	for _, str := range strs {
+		str = strings.Replace(str, " ", "", -1)
+		str = strings.Replace(str, "\n", "", -1)
+		str = strings.Replace(str, "\t", "", -1)
+		input_ligs, _ := strconv.Atoi(str)
+
+		if input_ligs != 0 {
+
+			fmt.Printf("\n%v - %v\n", input_ligs, ligs[input_ligs-1].name)
+			//fmt.Printf("%v: %v - %v\n\n", input_ligs, ligs[input_ligs-1].name, country_ligs(ligs[input_ligs-1].img))
+			link_thil_lig := ligs[input_ligs-1].link
+
+			// Составляем ссылку
+			link_thil_lig += link_god
+
+			// Making
+			parseLig(link_thil_lig, ligs[input_ligs-1].name+"-"+country_ligs(ligs[input_ligs-1].img), f_itog, f_lig, f_result, f_out)
+		}
+	}
+}
+
+func parseLig(link_thil_lig, ssheet string, f_itog, f_lig, f_result, f_out *excelize.File) {
 
 	// получить результаты всех матчей
 	results := result_of_lig_god(link_thil_lig)
@@ -83,7 +118,7 @@ func main() {
 	calcules := calcule_res_itog(results, itogs)
 
 	// Сохранение данных
-	save_res(results, ligs[input_ligs-1].name+" - "+country_ligs(ligs[input_ligs-1].img))
+	save_res(results)
 	save_ligs(ligs)
 	save_itog(itogs)
 	save_calcule(calcules)
