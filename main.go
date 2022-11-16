@@ -91,9 +91,8 @@ func main() {
 	saveCloseExit(f_out_tz)
 
 	fmt.Println("\nГотово\nНажмите на Enter")
-
-	//var input string
-	//fmt.Scanf("%v", &input)
+	var input string
+	fmt.Scanf("%v", &input)
 }
 
 func startParse(f_itog, f_lig, f_result, f_out, f_out_tz *excelize.File) {
