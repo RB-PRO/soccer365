@@ -1,63 +1,54 @@
 package main
 
 import (
-	"fmt"
 	"math"
-	"os"
 	"strconv"
 
 	"github.com/xuri/excelize/v2"
 )
 
 // Сохранить результаты
-func save_calcule(calcules []calcule) {
-	var tecal_ssheet string = "main"
+func save_calcule(f *excelize.File, calcules []calcule, ssheet string) {
 	var offset int = 1
-	f := excelize.NewFile()
-	f.NewSheet(tecal_ssheet)
-	f.DeleteSheet("Sheet1")
-	f.SetCellValue(tecal_ssheet, "A1", "К-т 1")
-	f.SetCellValue(tecal_ssheet, "B1", "Команда 1")
-	f.SetCellValue(tecal_ssheet, "C1", "Голы 1")
-	f.SetCellValue(tecal_ssheet, "D1", "Голы 2")
-	f.SetCellValue(tecal_ssheet, "E1", "Команда 2")
-	f.SetCellValue(tecal_ssheet, "F1", "К-т 1")
+	f.NewSheet(ssheet)
+	f.SetCellValue(ssheet, "A1", "К-т 1")
+	f.SetCellValue(ssheet, "B1", "Команда 1")
+	f.SetCellValue(ssheet, "C1", "Голы 1")
+	f.SetCellValue(ssheet, "D1", "Голы 2")
+	f.SetCellValue(ssheet, "E1", "Команда 2")
+	f.SetCellValue(ssheet, "F1", "К-т 1")
 	for ind, val := range calcules {
-		f.SetCellValue(tecal_ssheet, "A"+strconv.Itoa(ind+1+offset), val.koef_left)
-		f.SetCellValue(tecal_ssheet, "B"+strconv.Itoa(ind+1+offset), val.game.left.name)
-		f.SetCellValue(tecal_ssheet, "C"+strconv.Itoa(ind+1+offset), val.game.left.gols)
-		f.SetCellValue(tecal_ssheet, "D"+strconv.Itoa(ind+1+offset), val.game.right.gols)
-		f.SetCellValue(tecal_ssheet, "E"+strconv.Itoa(ind+1+offset), val.game.right.name)
-		f.SetCellValue(tecal_ssheet, "F"+strconv.Itoa(ind+1+offset), val.koef_right)
+		//fmt.Println(val.koef_left, val.koef_right)
+		f.SetCellValue(ssheet, "A"+strconv.Itoa(ind+1+offset), val.koef_left)
+		f.SetCellValue(ssheet, "B"+strconv.Itoa(ind+1+offset), val.game.left.name)
+		f.SetCellValue(ssheet, "C"+strconv.Itoa(ind+1+offset), val.game.left.gols)
+		f.SetCellValue(ssheet, "D"+strconv.Itoa(ind+1+offset), val.game.right.gols)
+		f.SetCellValue(ssheet, "E"+strconv.Itoa(ind+1+offset), val.game.right.name)
+		f.SetCellValue(ssheet, "F"+strconv.Itoa(ind+1+offset), val.koef_right)
 	}
-	if err := f.SaveAs("calcule.xlsx"); err != nil {
-		fmt.Println(err)
-	}
-	f.Close()
 }
 
 // Сохранить результаты в файл по ТЗ
-func save_calcule_other_file(calcules []calcule) {
-	if _, err := os.Stat(file_out); err == nil { // Файл существует
-		f, err := excelize.OpenFile(file_out, excelize.Options{})
-		if err != nil {
-			panic(err)
+func save_calcule_other_file(f *excelize.File, calcules []calcule) {
+	writeserDatasCalc(f, calcules)
+	/*
+		if _, err := os.Stat(file_out); err == nil { // Файл существует
+			writeserDatasCalc(f, calcules)
+			//f.Save()
+		} else { // Файл не существует
+			writeserDatasCalc(f, calcules)
+			//if err := f.SaveAs(file_out); err != nil {
+			//	fmt.Println(err)
+			//}
 		}
-		writeserDatasCalc(f, calcules)
-		f.Save()
-	} else { // Файл не существует
-		f := excelize.NewFile()
-		writeserDatasCalc(f, calcules)
-		if err := f.SaveAs(file_out); err != nil {
-			fmt.Println(err)
-		}
-	}
+	*/
 }
 
 // Внести всё
 func writeserDatasCalc(f *excelize.File, calcules []calcule) {
 	for _, val := range calcules {
 		tecal_ssheet := sheet_name(val.koef_left, val.koef_right)
+		tecal_ssheet = createNameSheet(tecal_ssheet)
 		//fmt.Println(">>>>>>>>>>>", tecal_ssheet, "---------", val.koef_left, val.koef_right)
 		if len(tecal_ssheet) == 5 {
 			f.NewSheet(tecal_ssheet)
@@ -65,8 +56,6 @@ func writeserDatasCalc(f *excelize.File, calcules []calcule) {
 		}
 		//fmt.Println(ind, tecal_ssheet, val.koef_left, val.koef_right)
 	}
-	f.DeleteSheet("Sheet1")
-	f.Close()
 }
 
 // Составить название листа
@@ -94,6 +83,8 @@ func writeData(f *excelize.File, sSheet string, calc calcule) {
 	}
 	lens := len(r)
 	lens++
+	//fmt.Println(sSheet)
+	//fmt.Println(calc.game.left.gols-calc.game.right.gols, calc.game.left.gols+calc.game.right.gols, calc.game.left.name, calc.game.right.name)
 	f.SetCellValue(sSheet, "A"+strconv.Itoa(int(lens)), calc.game.left.gols-calc.game.right.gols)
 	f.SetCellValue(sSheet, "B"+strconv.Itoa(int(lens)), calc.game.left.gols+calc.game.right.gols)
 	f.SetCellValue(sSheet, "C"+strconv.Itoa(int(lens)), calc.game.left.name)
@@ -123,6 +114,12 @@ func calcule_single(res result, itog_left itog, itog_right itog) calcule {
 	calc.game = res
 
 	calc.koef_left = float64(calc.stats_left.count_in+calc.stats_right.count_out) / float64(calc.stats_left.count_games+calc.stats_right.count_games)
+	if math.IsNaN(calc.koef_left) {
+		calc.koef_left = 0.0
+	}
 	calc.koef_right = float64(calc.stats_right.count_in+calc.stats_left.count_out) / float64(calc.stats_right.count_games+calc.stats_left.count_games)
+	if math.IsNaN(calc.koef_right) {
+		calc.koef_right = 0.0
+	}
 	return calc
 }

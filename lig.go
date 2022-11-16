@@ -13,7 +13,7 @@ import (
 )
 
 func god_of_link() string {
-	fmt.Print("Введите номер интересующей Вас год\n(Например: 22 для 2021/2022):\n> ")
+	fmt.Print("Введите год\n(Например: 22 для 2021/2022):\n> ")
 
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
@@ -64,7 +64,7 @@ func list_of_ligs() []lig {
 		}
 		ligs = append(ligs, tecal_lig)
 	})
-	//c.Visit("https://soccer365.ru/index.php?c=competitions&a=champs_list_data&tp=0&cn_id=0&st=0&ttl=&p=1")
+	c.Visit("https://soccer365.ru/index.php?c=competitions&a=champs_list_data&tp=0&cn_id=0&st=0&ttl=&p=1")
 
 	for i := 1; ; i++ {
 		c.Visit("https://soccer365.ru/index.php?c=competitions&a=champs_list_data&tp=0&cn_id=0&st=0&ttl=&p=" + strconv.Itoa(i))
@@ -73,23 +73,17 @@ func list_of_ligs() []lig {
 		}
 	}
 
-	//	fmt.Println(exits)
+	//fmt.Println(exits)
 	return ligs
 }
 
 // Сохранить лиги в файл
-func save_ligs(ligs []lig) {
-	f := excelize.NewFile()
-	f.NewSheet("main")
-	f.DeleteSheet("Sheet1")
+func save_ligs(f *excelize.File, ligs []lig, ssheet string) {
+	f.NewSheet(ssheet)
 	for ind, val := range ligs {
-		f.SetCellValue("main", "A"+strconv.Itoa(ind+1), val.name)
-		f.SetCellValue("main", "B"+strconv.Itoa(ind+1), val.link)
-		f.SetCellValue("main", "C"+strconv.Itoa(ind+1), val.img)
-		f.SetCellValue("main", "D"+strconv.Itoa(ind+1), country_ligs(val.img))
+		f.SetCellValue(ssheet, "A"+strconv.Itoa(ind+1), val.name)
+		f.SetCellValue(ssheet, "B"+strconv.Itoa(ind+1), val.link)
+		f.SetCellValue(ssheet, "C"+strconv.Itoa(ind+1), val.img)
+		f.SetCellValue(ssheet, "D"+strconv.Itoa(ind+1), country_ligs(val.img))
 	}
-	if err := f.SaveAs("ligs.xlsx"); err != nil {
-		fmt.Println(err)
-	}
-	f.Close()
 }
