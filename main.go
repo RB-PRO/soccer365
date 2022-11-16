@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gocolly/colly/v2"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -41,6 +42,10 @@ type calcule struct {
 	game        result
 	koef_left   float64 // Левый к-т домашней команды
 	koef_right  float64 // Правый к-т приезжей команды
+}
+type linkid struct {
+	link  string
+	label string
 }
 
 const site string = "https://soccer365.ru"
@@ -87,8 +92,8 @@ func main() {
 
 	fmt.Println("\nГотово\nНажмите на Enter")
 
-	var input string
-	fmt.Scanf("%v", &input)
+	//var input string
+	//fmt.Scanf("%v", &input)
 }
 
 func startParse(f_itog, f_lig, f_result, f_out, f_out_tz *excelize.File) {
@@ -112,7 +117,8 @@ func startParse(f_itog, f_lig, f_result, f_out, f_out_tz *excelize.File) {
 	// Получить год
 	link_god := god_of_link()
 
-	strs := strings.Split(text, " ")
+	//strs := strings.Split(text, " ")
+	strs := allTournirs(text)
 
 	var sheetName string
 
@@ -124,19 +130,78 @@ func startParse(f_itog, f_lig, f_result, f_out, f_out_tz *excelize.File) {
 
 		if input_ligs != 0 {
 
-			fmt.Printf("\n%v - %v\n", input_ligs, ligs[input_ligs-1].name)
+			fmt.Printf("\n%v - %v, %v\n", input_ligs, ligs[input_ligs-1].name, country_ligs(ligs[input_ligs-1].img))
 			//fmt.Printf("%v: %v - %v\n\n", input_ligs, ligs[input_ligs-1].name, country_ligs(ligs[input_ligs-1].img))
 			link_thil_lig := ligs[input_ligs-1].link
 
 			// Составляем ссылку
-			link_thil_lig += link_god
+			link_thil_lig = makeLinkOfYear(link_thil_lig, link_god)
+			fmt.Println("Загружаю:", link_thil_lig)
 
-			// Making
-			sheetName = ligs[input_ligs-1].name + " " + country_ligs(ligs[input_ligs-1].img)
-			sheetName = createNameSheet(sheetName)
-			parseLig(link_thil_lig, sheetName, f_itog, f_lig, f_result, f_out, f_out_tz)
+			if link_thil_lig != "" {
+				sheetName = ligs[input_ligs-1].name + " " + country_ligs(ligs[input_ligs-1].img)
+				sheetName = createNameSheet(sheetName)
+				parseLig(link_thil_lig, sheetName, f_itog, f_lig, f_result, f_out, f_out_tz)
+			}
 		}
 	}
+}
+
+func allTournirs(str string) []string {
+	reference := strings.Split(str, " ")
+	var output []string
+	for _, val := range reference {
+		//val_int, _ := strconv.Atoi(val)
+		if strings.Contains(val, "-") {
+			container := strings.Split(val, "-")
+			if len(container) == 2 {
+				val_before, _ := strconv.Atoi(container[0])
+				val_after, _ := strconv.Atoi(container[1])
+				if val_before > val_after {
+					val_before, val_after = val_after, val_before
+				}
+				for i := val_before; i <= val_after; i++ {
+					output = append(output, strconv.Itoa(i))
+				}
+			}
+		} else {
+			output = append(output, val)
+		}
+
+	}
+	return output
+}
+
+func makeLinkOfYear(link string, year int) string {
+	//fmt.Println(link)
+	lil := makeAllYear(link)
+	//fmt.Println(lil)
+
+	yearStr := strconv.Itoa(year)
+	yearT := yearStr[len(yearStr)-2:]
+
+	for _, val := range lil {
+		tecalYear := val.label[len(val.label)-2:]
+		if tecalYear == yearT {
+			//fmt.Println(tecalYear, yearT)
+			return site + val.link
+		}
+	}
+
+	return ""
+}
+func makeAllYear(link string) []linkid {
+	var label string
+	var tecal_year string
+	var linkids []linkid
+	c := colly.NewCollector()
+	c.OnHTML("div[class=breadcrumb] div[class^=selectbox]:nth-of-type(2) a", func(e *colly.HTMLElement) {
+		label = e.DOM.Text()
+		tecal_year, _ = e.DOM.Attr("href")
+		linkids = append(linkids, linkid{link: tecal_year, label: label})
+	})
+	c.Visit(link)
+	return linkids
 }
 
 func createNameSheet(str string) string {

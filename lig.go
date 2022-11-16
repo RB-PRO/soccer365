@@ -12,7 +12,7 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-func god_of_link() string {
+func god_of_link() int {
 	fmt.Print("Введите год\n(Например: 22 для 2021/2022):\n> ")
 
 	scanner := bufio.NewScanner(os.Stdin)
@@ -23,14 +23,19 @@ func god_of_link() string {
 	}
 	text := scanner.Text()
 
-	inp, _ := strconv.Atoi(text)
-
-	if inp == 23 {
-		return ""
-	} else if inp < 23 {
-		return strconv.Itoa(inp+2000-1) + "-" + strconv.Itoa(inp+2000) + "/"
+	inp, err_inp := strconv.Atoi(text)
+	if err_inp != nil {
+		fmt.Println(err_inp)
 	}
-	return ""
+
+	/*
+		if inp == 23 {
+			return ""
+		} else if inp < 23 {
+			return strconv.Itoa(inp+2000-1) + "-" + strconv.Itoa(inp+2000) + "/"
+		}
+	*/
+	return inp
 }
 
 // Получить название страны из ссылки
@@ -64,9 +69,9 @@ func list_of_ligs() []lig {
 		}
 		ligs = append(ligs, tecal_lig)
 	})
-	c.Visit("https://soccer365.ru/index.php?c=competitions&a=champs_list_data&tp=0&cn_id=0&st=0&ttl=&p=1")
+	//c.Visit("https://soccer365.ru/index.php?c=competitions&a=champs_list_data&tp=0&cn_id=0&st=0&ttl=&p=1")
 
-	for i := 1; ; i++ {
+	for i := 1; i <= 2; i++ {
 		c.Visit("https://soccer365.ru/index.php?c=competitions&a=champs_list_data&tp=0&cn_id=0&st=0&ttl=&p=" + strconv.Itoa(i))
 		if exits {
 			break
