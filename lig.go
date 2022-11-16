@@ -71,7 +71,7 @@ func list_of_ligs() []lig {
 	})
 	//c.Visit("https://soccer365.ru/index.php?c=competitions&a=champs_list_data&tp=0&cn_id=0&st=0&ttl=&p=1")
 
-	for i := 1; i <= 2; i++ {
+	for i := 1; ; i++ {
 		c.Visit("https://soccer365.ru/index.php?c=competitions&a=champs_list_data&tp=0&cn_id=0&st=0&ttl=&p=" + strconv.Itoa(i))
 		if exits {
 			break
